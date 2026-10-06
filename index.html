@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Macros de Lorenzo</title>
+<style>
+    :root {
+        --bg-color: #050505;
+        --card-bg: #121212;
+        --card-light: #1c1c1c;
+        --border-color: #1f1f1f;
+        --accent: #f53a25;
+        --accent-dark: rgba(245, 58, 37, 0.12);
+        --accent-border: rgba(245, 58, 37, 0.35);
+        --accent-glow: rgba(245, 58, 37, 0.25);
+        --text-main: #ffffff;
+        --text-muted: #888888;
+        --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: var(--font-family);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Fondo con profundidad */
+    body::before {
+        content: "";
+        position: fixed;
+        top: -20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 140%;
+        height: 60%;
+        background: radial-gradient(ellipse at center, rgba(245, 58, 37, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .app-container {
+        width: 100%;
+        max-width: 440px;
+        padding: 28px 20px 60px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ========== HEADER ========== */
+    .header {
+        text-align: center;
+        margin-bottom: 36px;
+        position: relative;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #1a1a1a, #222);
+        color: #aaa;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        padding: 7px 16px;
+        border-radius: 20px;
+        margin-bottom: 22px;
+        border: 1px solid #2a2a2a;
+    }
+
+    .badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: var(--accent);
+        border-radius: 50%;
+        box-shadow: 0 0 8px var(--accent);
+    }
+
+    h1 {
+        font-size: 2.15rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 14px;
+        letter-spacing: -0.5px;
+    }
+
+    h1 span {
+        color: var(--accent);
+        position: relative;
+    }
+
+    .subtitle {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        line-height: 1.5;
+        max-width: 340px;
+        margin: 0 auto;
+    }
+
+    /* ========== SECTIONS ========== */
+    .section-title {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        margin-top: 28px;
+        display: block;
+    }
+
+    /* Weight card */
+    .weight-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+        padding: 22px 20px 18px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .weight-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(245,58,37,0.3), transparent);
+    }
+
+    .weight-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 18px;
+    }
+
+    .weight-number {
+        font-size: 2.8rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        line-height: 1;
+        transition: transform 0.15s ease;
+        display: inline-block;
+    }
+
+    .weight-unit {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .slider-wrapper {
+        width: 100%;
+        padding: 4px 0 6px;
+    }
+
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 5px;
+        background: transparent;
+        border-radius: 3px;
+        outline: none;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 5px solid var(--accent);
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(245, 58, 37, 0.5), 0 2px 6px rgba(0,0,0,0.4);
+        transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+        transform: scale(1.15);
+    }
+
+    /* Grid & buttons */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .btn-option {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 16px 14px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-option:hover {
+        border-color: #333;
+        background: #161616;
+        transform: translateY(-1px);
+    }
+
+    .btn-option:active {
+        transform: scale(0.97);
+    }
+
+    .btn-option.center {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-main);
+    }
+
+    .btn-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 3px;
+    }
+
+    .btn-sub {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .btn-option.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        box-shadow: 0 4px 20px rgba(245, 58, 37, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-option.active .btn-title,
+    .btn-option.active.center {
+        color: #fff;
+    }
+
+    .btn-option.active .btn-sub {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* Divider */
+    hr.divider {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #2a2a2a, transparent);
+        margin: 36px 0 28px;
+    }
+
+    /* Calculate button */
+    .btn-calculate {
+        width: 100%;
+        background: linear-gradient(135deg, #f53a25, #e02e1a);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 19px;
+        font-size: 1.12rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 6px 24px rgba(245, 58, 37, 0.4);
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-calculate::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-calculate:hover::after {
+        left: 120%;
+    }
+
+    .btn-calculate:active {
+        transform: scale(0.98);
+        box-shadow: 0 3px 14px rgba(245, 58, 37, 0.35);
+    }
+
+    /* ========== ANIMATIONS ========== */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(22px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.92); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 4px 20px rgba(245, 58, 37, 0.35); }
+        50% { box-shadow: 0 4px 28px rgba(245, 58, 37, 0.55); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    @keyframes jarPop {
+        0% { opacity: 0; transform: translateY(12px) scale(0.85); }
+        60% { transform: translateY(-4px) scale(1.05); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes numberPop {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        60% { transform: scale(1.08); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Entrance for form sections */
+    .app-container > .header,
+    .app-container > .section-title,
+    .app-container > .weight-card,
+    .app-container > .grid-2,
+    .app-container > .btn-calculate,
+    .app-container > hr.divider {
+        animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .header { animation-delay: 0.05s; }
+    .section-title:nth-of-type(1), .weight-card { animation-delay: 0.12s; }
+    .section-title:nth-of-type(2), .grid-2:nth-of-type(1) { animation-delay: 0.2s; }
+    .section-title:nth-of-type(3), .grid-2:nth-of-type(2) { animation-delay: 0.28s; }
+    .section-title:nth-of-type(4), .grid-2:nth-of-type(3) { animation-delay: 0.36s; }
+    hr.divider { animation-delay: 0.42s; }
+    .btn-calculate { animation-delay: 0.48s; }
+
+    /* ========== RESULTS ========== */
+    .results-container {
+        display: none;
+        margin-top: 48px;
+    }
+
+    .results-container.visible {
+        display: block;
+    }
+
+    .result-block {
+        margin-bottom: 40px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .result-block.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .supplements-row {
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .supplements-row.show {
+        opacity: 0.85;
+    }
+
+    .supp-item {
+        animation: jarPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .supp-item:nth-child(1) { animation-delay: 0.05s; }
+    .supp-item:nth-child(2) { animation-delay: 0.15s; }
+    .supp-item:nth-child(3) { animation-delay: 0.25s; }
+
+    .supp-jar {
+        animation: float 3.2s ease-in-out infinite;
+    }
+
+    .supp-item:nth-child(2) .supp-jar { animation-delay: 0.4s; }
+    .supp-item:nth-child(3) .supp-jar { animation-delay: 0.8s; }
+
+    .res-main-value {
+        transition: transform 0.3s ease;
+    }
+
+    .res-main-value.pop {
+        animation: numberPop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .macro-card {
+        transition: border-color 0.2s, transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .macro-card:hover {
+        border-color: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .btn-option.active {
+        animation: pulseGlow 2.5s ease-in-out infinite;
+    }
+
+    .btn-calculate.loading {
+        pointer-events: none;
+        opacity: 0.85;
+    }
+
+    .btn-calculate.loading::after {
+        left: -100%;
+        animation: shimmer 0.9s ease forwards;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+        background-size: 200% 100%;
+    }
+
+    .footer-cta {
+        opacity: 0;
+        transform: translateY(16px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .footer-cta.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .res-header {
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.6px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .res-main-value {
+        font-size: 3.6rem;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+        letter-spacing: -1.5px;
+        text-shadow: 0 0 40px rgba(245, 58, 37, 0.25);
+    }
+
+    .res-main-value.white {
+        color: #fff;
+        text-shadow: none;
+    }
+
+    .res-subtitle {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 6px;
+        margin-bottom: 22px;
+    }
+
+    /* Macro cards with jar visual */
+    .macro-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .macro-card {
+        background: var(--card-light);
+        border: 1px solid #252525;
+        border-radius: 16px;
+        padding: 18px 14px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+    .macro-card:hover {
+        border-color: #333;
+    }
+
+    .macro-card .val {
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .macro-card .desc {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        line-height: 1.35;
+    }
+
+    /* Decorative jar icons (pure CSS) */
+    .jar-icon {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 34px;
+        opacity: 0.18;
+    }
+
+    .jar-icon svg {
+        width: 100%;
+        height: 100%;
+        fill: var(--accent);
+    }
+
+    /* Tip box */
+    .tip-box {
+        background: var(--accent-dark);
+        border: 1px solid var(--accent-border);
+        border-radius: 16px;
+        padding: 18px 18px 18px 20px;
+        margin-top: 16px;
+        font-size: 0.86rem;
+        color: #d0d0d0;
+        line-height: 1.55;
+        position: relative;
+    }
+
+    .tip-box strong {
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    .tip-box::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 12px;
+        bottom: 12px;
+        width: 3px;
+        background: var(--accent);
+        border-radius: 0 3px 3px 0;
+    }
+
+    /* Visual supplement row */
+    .supplements-row {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        margin: 28px 0 8px;
+        opacity: 0.7;
+    }
+
+    .supp-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .supp-jar {
+        width: 42px;
+        height: 52px;
+        position: relative;
+    }
+
+    .supp-jar svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .supp-label {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* Footer CTA */
+    .footer-cta {
+        text-align: center;
+        margin-top: 48px;
+        padding: 28px 20px;
+        background: linear-gradient(180deg, #0e0e0e, #121212);
+        border: 1px solid #222;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .footer-cta::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0.5;
+    }
+
+    .footer-cta p {
+        font-size: 0.9rem;
+        color: #bbb;
+        line-height: 1.55;
+        margin-bottom: 16px;
+    }
+
+    .footer-cta strong {
+        color: #fff;
+    }
+
+    .ig-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent);
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 12px 24px;
+        border-radius: 30px;
+        text-decoration: none;
+        box-shadow: 0 4px 18px rgba(245, 58, 37, 0.4);
+        transition: all 0.2s ease;
+    }
+
+    .ig-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(245, 58, 37, 0.5);
+    }
+
+    .ig-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+    }
+
+    /* Small decorative elements */
+    .floating-icon {
+        position: absolute;
+        opacity: 0.06;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .floating-icon.left {
+        top: 120px;
+        left: -10px;
+        width: 70px;
+        transform: rotate(-15deg);
+    }
+
+    .floating-icon.right {
+        top: 280px;
+        right: -15px;
+        width: 60px;
+        transform: rotate(20deg);
+    }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- Decorative floating icons -->
+    <div class="floating-icon left">
+        <svg viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="12" y="8" width="40" height="12" rx="3" fill="#f53a25"/>
+            <rect x="8" y="20" width="48" height="52" rx="6" fill="#f53a25"/>
+            <rect x="18" y="28" width="28" height="8" rx="2" fill="#050505" opacity="0.4"/>
+        </svg>
+    </div>
+    <div class="floating-icon right">
+        <svg viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="14" y="6" width="36" height="10" rx="2" fill="#f53a25"/>
+            <path d="M10 18h44v50a6 6 0 01-6 6H16a6 6 0 01-6-6V18z" fill="#f53a25"/>
+            <circle cx="32" cy="42" r="10" fill="#050505" opacity="0.35"/>
+        </svg>
+    </div>
+
+    <div class="header">
+        <span class="badge">BY LORENZO BEZAMA</span>
+        <h1>Calcula tus<br><span>macros diarios</span></h1>
+        <p class="subtitle">Descubre exactamente cuántas calorías, proteína y carbohidratos necesitas según la ciencia deportiva actual.</p>
+    </div>
+
+    <span class="section-title">TU PESO ACTUAL</span>
+    <div class="weight-card">
+        <div class="weight-display">
+            <span class="weight-number" id="weightDisplay">70</span>
+            <span class="weight-unit">kg</span>
+        </div>
+        <div class="slider-wrapper">
+            <input type="range" id="weightSlider" min="40" max="140" value="70">
+        </div>
+    </div>
+
+    <span class="section-title">TU OBJETIVO PRINCIPAL</span>
+    <div class="grid-2">
+        <button class="btn-option center active" data-group="objective" data-val="muscle">
+            💪 Ganar músculo
+        </button>
+        <button class="btn-option center" data-group="objective" data-val="fatloss">
+            🔥 Bajar grasa
+        </button>
+    </div>
+
+    <span class="section-title">TIEMPO ENTRENANDO</span>
+    <div class="grid-2">
+        <button class="btn-option active" data-group="experience" data-val="beginner">
+            <span class="btn-title">Principiante</span>
+            <span class="btn-sub">Menos de 1 año</span>
+        </button>
+        <button class="btn-option" data-group="experience" data-val="intermediate">
+            <span class="btn-title">Intermedio</span>
+            <span class="btn-sub">1 a 3 años</span>
+        </button>
+        <button class="btn-option" data-group="experience" data-val="advanced">
+            <span class="btn-title">Avanzado</span>
+            <span class="btn-sub">3 a 6 años</span>
+        </button>
+        <button class="btn-option" data-group="experience" data-val="athlete">
+            <span class="btn-title">Atleta</span>
+            <span class="btn-sub">Más de 6 años</span>
+        </button>
+    </div>
+
+    <span class="section-title">SESIONES POR SEMANA</span>
+    <div class="grid-2">
+        <button class="btn-option active" data-group="sessions" data-val="2">
+            <span class="btn-title">2 días</span>
+            <span class="btn-sub">Actividad ligera</span>
+        </button>
+        <button class="btn-option" data-group="sessions" data-val="3">
+            <span class="btn-title">3 días</span>
+            <span class="btn-sub">Frecuencia moderada</span>
+        </button>
+        <button class="btn-option" data-group="sessions" data-val="5">
+            <span class="btn-title">4–5 días</span>
+            <span class="btn-sub">Alta frecuencia</span>
+        </button>
+        <button class="btn-option" data-group="sessions" data-val="6">
+            <span class="btn-title">6+ días</span>
+            <span class="btn-sub">Volumen máximo</span>
+        </button>
+    </div>
+
+    <hr class="divider">
+
+    <button class="btn-calculate" onclick="calculateMacros()">
+        Calcular mis macros →
+    </button>
+
+    <div class="results-container" id="resultsContainer">
+
+        <!-- Visual supplements -->
+        <div class="supplements-row">
+            <div class="supp-item">
+                <div class="supp-jar">
+                    <svg viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="4" width="28" height="8" rx="2" fill="#f53a25"/>
+                        <path d="M6 14h36v38a5 5 0 01-5 5H11a5 5 0 01-5-5V14z" fill="#f53a25" opacity="0.85"/>
+                        <rect x="14" y="22" width="20" height="6" rx="1.5" fill="#050505" opacity="0.35"/>
+                        <text x="24" y="42" text-anchor="middle" fill="#fff" font-size="7" font-weight="700" opacity="0.9">PRO</text>
+                    </svg>
+                </div>
+                <span class="supp-label">Proteína</span>
+            </div>
+            <div class="supp-item">
+                <div class="supp-jar">
+                    <svg viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="12" y="2" width="24" height="7" rx="2" fill="#f53a25"/>
+                        <path d="M8 11h32v40a5 5 0 01-5 5H13a5 5 0 01-5-5V11z" fill="#f53a25" opacity="0.75"/>
+                        <circle cx="24" cy="32" r="9" fill="#050505" opacity="0.3"/>
+                        <text x="24" y="35" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">CREA</text>
+                    </svg>
+                </div>
+                <span class="supp-label">Creatina</span>
+            </div>
+            <div class="supp-item">
+                <div class="supp-jar">
+                    <svg viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="11" y="5" width="26" height="7" rx="2" fill="#f53a25"/>
+                        <path d="M7 14h34v36a5 5 0 01-5 5H12a5 5 0 01-5-5V14z" fill="#f53a25" opacity="0.65"/>
+                        <rect x="15" y="24" width="18" height="5" rx="1" fill="#050505" opacity="0.3"/>
+                        <text x="24" y="42" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="700">CARB</text>
+                    </svg>
+                </div>
+                <span class="supp-label">Carbs</span>
+            </div>
+        </div>
+
+        <!-- CALORÍAS -->
+        <div class="result-block">
+            <div class="res-header">CALORÍAS RECOMENDADAS</div>
+            <div class="res-main-value"><span id="calMain">2200–2500</span></div>
+            <div class="res-subtitle">kcal al día</div>
+
+            <div class="macro-grid">
+                <div class="macro-card">
+                    <div class="val"><span id="calMin">2200</span></div>
+                    <div class="desc" id="calMinDesc">extremo inferior del rango</div>
+                </div>
+                <div class="macro-card">
+                    <div class="val"><span id="calMax">2500</span></div>
+                    <div class="desc" id="calMaxDesc">extremo superior del rango</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-block" style="margin-top: 48px;">
+            <div class="res-header">TU OBJETIVO DIARIO</div>
+            <div class="res-main-value"><span id="protMain">141–165</span>g</div>
+            <div class="res-subtitle">de proteína al día</div>
+
+            <div class="macro-grid">
+                <div class="macro-card">
+                    <div class="jar-icon">
+                        <svg viewBox="0 0 32 40"><rect x="6" y="2" width="20" height="6" rx="1.5"/><path d="M4 9h24v26a3 3 0 01-3 3H7a3 3 0 01-3-3V9z"/></svg>
+                    </div>
+                    <div class="val"><span id="protMin">141</span>g</div>
+                    <div class="desc" id="protMinDesc">mínimo para recuperación muscular</div>
+                </div>
+                <div class="macro-card">
+                    <div class="jar-icon">
+                        <svg viewBox="0 0 32 40"><rect x="6" y="2" width="20" height="6" rx="1.5"/><path d="M4 9h24v26a3 3 0 01-3 3H7a3 3 0 01-3-3V9z"/></svg>
+                    </div>
+                    <div class="val"><span id="protMax">165</span>g</div>
+                    <div class="desc" id="protMaxDesc">óptimo para crecimiento máximo</div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>Consejo de Lorenzo:</strong> Distribuye tu proteína en 4-5 comidas al día. Tu cuerpo aprovecha mejor porciones de 30-40g. Prioriza pollo, huevos, carne y claras para llegar a tu objetivo.
+            </div>
+        </div>
+
+        <div class="result-block" style="margin-top: 48px;">
+            <div class="res-header">CARBOHIDRATOS RECOMENDADOS</div>
+            <div class="res-main-value white"><span id="carbMain">210–280</span>g</div>
+            <div class="res-subtitle">para rendir en tus entrenamientos</div>
+
+            <div class="macro-grid">
+                <div class="macro-card">
+                    <div class="val"><span id="carbMin">210</span>g</div>
+                    <div class="desc">días de descanso o actividad ligera</div>
+                </div>
+                <div class="macro-card">
+                    <div class="val"><span id="carbMax">280</span>g</div>
+                    <div class="desc">días de entrenamiento intenso</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-cta">
+            <p>¿Quieres un plan completo personalizado?<br>
+            Escríbeme la palabra <strong>"CAMBIO"</strong> en Instagram</p>
+            <a class="ig-btn" href="https://instagram.com/pyro_lorenzo" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                @pyro_lorenzo
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // 1. Slider Visuals
+    const weightSlider = document.getElementById('weightSlider');
+    const weightDisplay = document.getElementById('weightDisplay');
+
+    function updateSliderFill() {
+        const val = weightSlider.value;
+        const min = weightSlider.min;
+        const max = weightSlider.max;
+        const percentage = ((val - min) / (max - min)) * 100;
+        weightDisplay.textContent = val;
+        weightDisplay.style.transform = 'scale(1.08)';
+        setTimeout(() => weightDisplay.style.transform = 'scale(1)', 120);
+        weightSlider.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${percentage}%, #333333 ${percentage}%, #333333 100%)`;
+    }
+
+    updateSliderFill();
+    weightSlider.addEventListener('input', updateSliderFill);
+
+    // 2. Buttons Logic
+    const allButtons = document.querySelectorAll('.btn-option');
+    allButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const groupName = this.getAttribute('data-group');
+            document.querySelectorAll(`.btn-option[data-group="${groupName}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+        });
+    });
+
+    // 3. Calculadora Científica
+    function calculateMacros() {
+        const weight = parseFloat(weightSlider.value);
+        
+        const objective = document.querySelector('.btn-option[data-group="objective"].active').getAttribute('data-val');
+        const experience = document.querySelector('.btn-option[data-group="experience"].active').getAttribute('data-val');
+        const sessions = parseInt(document.querySelector('.btn-option[data-group="sessions"].active').getAttribute('data-val'));
+
+        let minProtMultiplier, maxProtMultiplier;
+        let minCarbMultiplier, maxCarbMultiplier;
+
+        // ========== PROTEÍNA ==========
+        if (objective === "muscle") {
+            minProtMultiplier = 1.6;
+            maxProtMultiplier = 2.2;
+            
+            document.getElementById('protMinDesc').textContent = "mínimo para hipertrofia";
+            document.getElementById('protMaxDesc').textContent = "óptimo para crecimiento";
+        } else {
+            minProtMultiplier = 2.0;
+            maxProtMultiplier = 2.4;
+            
+            document.getElementById('protMinDesc').textContent = "mínimo para no perder músculo";
+            document.getElementById('protMaxDesc').textContent = "óptimo durante el déficit";
+        }
+
+        // ========== CARBOHIDRATOS ==========
+        if (sessions <= 2) {
+            minCarbMultiplier = 2.5; maxCarbMultiplier = 3.5;
+        } else if (sessions === 3) {
+            minCarbMultiplier = 3.5; maxCarbMultiplier = 4.5;
+        } else if (sessions === 5) {
+            minCarbMultiplier = 4.5; maxCarbMultiplier = 5.5;
+        } else {
+            minCarbMultiplier = 5.5; maxCarbMultiplier = 7.0;
+        }
+
+        if (objective === "fatloss") {
+            minCarbMultiplier = Math.max(1.5, minCarbMultiplier - 1);
+            maxCarbMultiplier = Math.max(2.5, maxCarbMultiplier - 1);
+        }
+
+        // ========== CALORÍAS ==========
+        // Estimación de mantenimiento según volumen de entrenamiento (kcal/kg)
+        let maintMin, maintMax;
+        if (sessions <= 2) {
+            maintMin = 28; maintMax = 31;
+        } else if (sessions === 3) {
+            maintMin = 30; maintMax = 33;
+        } else if (sessions === 5) {
+            maintMin = 33; maintMax = 36;
+        } else {
+            maintMin = 36; maintMax = 40;
+        }
+
+        let calMin, calMax;
+        if (objective === "muscle") {
+            // Superávit moderado (+250 a +400 kcal)
+            calMin = Math.round(weight * maintMin + 250);
+            calMax = Math.round(weight * maintMax + 400);
+            document.getElementById('calMinDesc').textContent = "superávit ligero";
+            document.getElementById('calMaxDesc').textContent = "superávit óptimo";
+        } else {
+            // Déficit moderado (-300 a -500 kcal)
+            calMin = Math.round(weight * maintMin - 500);
+            calMax = Math.round(weight * maintMax - 300);
+            // Evitar valores demasiado bajos
+            calMin = Math.max(calMin, Math.round(weight * 22));
+            document.getElementById('calMinDesc').textContent = "déficit más agresivo";
+            document.getElementById('calMaxDesc').textContent = "déficit moderado";
+        }
+
+        const protMin = Math.round(weight * minProtMultiplier);
+        const protMax = Math.round(weight * maxProtMultiplier);
+        
+        const carbMin = Math.round(weight * minCarbMultiplier);
+        const carbMax = Math.round(weight * maxCarbMultiplier);
+
+        // Button loading feedback
+        const calcBtn = document.querySelector('.btn-calculate');
+        calcBtn.classList.add('loading');
+        calcBtn.textContent = 'Calculando...';
+
+        setTimeout(() => {
+            calcBtn.classList.remove('loading');
+            calcBtn.textContent = 'Calcular mis macros →';
+
+            // Show container
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.classList.add('visible');
+            resultsContainer.style.display = 'block';
+
+            // Reset previous animations
+            document.querySelectorAll('.result-block, .footer-cta, .supplements-row').forEach(el => {
+                el.classList.remove('show');
+            });
+
+            // Animate numbers with count-up
+            animateValue('calMin', 0, calMin, 700);
+            animateValue('calMax', 0, calMax, 700);
+            document.getElementById('calMain').textContent = `${calMin}–${calMax}`;
+            document.getElementById('calMain').classList.remove('pop');
+            void document.getElementById('calMain').offsetWidth;
+            document.getElementById('calMain').classList.add('pop');
+
+            animateValue('protMin', 0, protMin, 750);
+            animateValue('protMax', 0, protMax, 750);
+            document.getElementById('protMain').textContent = `${protMin}–${protMax}`;
+            document.getElementById('protMain').classList.remove('pop');
+            void document.getElementById('protMain').offsetWidth;
+            document.getElementById('protMain').classList.add('pop');
+
+            animateValue('carbMin', 0, carbMin, 800);
+            animateValue('carbMax', 0, carbMax, 800);
+            document.getElementById('carbMain').textContent = `${carbMin}–${carbMax}`;
+            document.getElementById('carbMain').classList.remove('pop');
+            void document.getElementById('carbMain').offsetWidth;
+            document.getElementById('carbMain').classList.add('pop');
+
+            // Staggered reveal
+            const blocks = document.querySelectorAll('.result-block');
+            const suppRow = document.querySelector('.supplements-row');
+            const footer = document.querySelector('.footer-cta');
+
+            setTimeout(() => suppRow.classList.add('show'), 80);
+            blocks.forEach((block, i) => {
+                setTimeout(() => block.classList.add('show'), 180 + i * 160);
+            });
+            setTimeout(() => footer.classList.add('show'), 180 + blocks.length * 160 + 80);
+
+            // Scroll
+            setTimeout(() => {
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 120);
+        }, 450);
+    }
+
+    // Count-up animation helper
+    function animateValue(id, start, end, duration) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const startTime = performance.now();
+        const range = end - start;
+
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // easeOutCubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.round(start + range * eased);
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = end;
+            }
+        }
+        requestAnimationFrame(update);
+    }
+</script>
+
+</body>
+</html>
